@@ -1,0 +1,262 @@
+<UserControl x:Class="SmartFactory.Presentation.Views.Dashboard.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200"
+             Background="{StaticResource TertiaryBackgroundBrush}">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Factory Dashboard"
+                       Style="{StaticResource HeaderTextStyle}"/>
+            <Button Content="Refresh"
+                    Command="{Binding RefreshCommand}"
+                    Style="{StaticResource IndustrialButtonStyle}"
+                    HorizontalAlignment="Right"/>
+        </Grid>
+
+        <!-- KPI Cards Row -->
+        <UniformGrid Grid.Row="1" Rows="1" Columns="4" Margin="0,0,0,24">
+            <!-- Equipment Running Card -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="Cog" Width="20" Height="20"
+                                                    Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="Equipment Running"
+                                   Style="{StaticResource BodyTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ActiveEquipmentCount}"
+                                   Style="{StaticResource KpiValueStyle}"/>
+                        <TextBlock Text="/"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="4,8,4,0"/>
+                        <TextBlock Text="{Binding TotalEquipmentCount}"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Today's Output Card -->
+            <Border Style="{StaticResource CardStyle}" Margin="6,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="Package" Width="20" Height="20"
+                                                    Foreground="{StaticResource RunningBrush}"/>
+                        <TextBlock Text="Today's Output"
+                                   Style="{StaticResource BodyTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ProductionSummary.CompletedUnits, FallbackValue=0}"
+                                   Style="{StaticResource KpiValueStyle}"/>
+                        <TextBlock Text=" units"
+                                   Style="{StaticResource BodyTextStyle}"
+                                   Margin="4,12,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Yield Rate Card -->
+            <Border Style="{StaticResource CardStyle}" Margin="6,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="ChartLine" Width="20" Height="20"
+                                                    Foreground="{StaticResource WarningBrush}"/>
+                        <TextBlock Text="Yield Rate"
+                                   Style="{StaticResource BodyTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding OverallEfficiency, StringFormat='{}{0:F1}%'}"
+                               Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Active Alarms Card -->
+            <Border Style="{StaticResource CardStyle}" Margin="12,0,0,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="Bell" Width="20" Height="20"
+                                                    Foreground="{StaticResource ErrorBrush}"/>
+                        <TextBlock Text="Active Alarms"
+                                   Style="{StaticResource BodyTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding AlarmSummary.TotalActive, FallbackValue=0}"
+                               Style="{StaticResource KpiValueStyle}"
+                               Foreground="{StaticResource ErrorBrush}"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Equipment Status & Charts Area -->
+            <Border Grid.Column="0"
+                    Style="{StaticResource CardStyle}"
+                    Margin="0,0,12,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Equipment Status Overview"
+                               Style="{StaticResource SubHeaderTextStyle}"
+                               Margin="0,0,0,16"/>
+
+                    <!-- Equipment Status Summary -->
+                    <StackPanel Grid.Row="1">
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource RunningBrush}"/>
+                                <TextBlock Text="Running" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.RunningCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource IdleBrush}"/>
+                                <TextBlock Text="Idle" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.IdleCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource WarningBrush}"/>
+                                <TextBlock Text="Warning" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.WarningCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource ErrorBrush}"/>
+                                <TextBlock Text="Error" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.ErrorCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource MaintenanceBrush}"/>
+                                <TextBlock Text="Maintenance" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.MaintenanceCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="12" Height="12" Fill="{StaticResource OfflineBrush}"/>
+                                <TextBlock Text="Offline" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EquipmentSummary.OfflineCount, FallbackValue=0}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Recent Alarms Panel -->
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Recent Alarms"
+                               Style="{StaticResource SubHeaderTextStyle}"
+                               Margin="0,0,0,16"/>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding RecentAlarms}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="0,8">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding AlarmCode}"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <TextBlock Text="{Binding Severity}"
+                                                       Margin="8,0,0,0"
+                                                       Foreground="{StaticResource WarningBrush}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding Message}"
+                                                   Style="{StaticResource CaptionTextStyle}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
