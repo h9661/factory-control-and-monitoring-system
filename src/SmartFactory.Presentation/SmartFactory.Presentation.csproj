@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <RootNamespace>SmartFactory.Presentation</RootNamespace>
     <AssemblyName>SmartFactory</AssemblyName>
   </PropertyGroup>
@@ -28,6 +27,7 @@
 
     <!-- Logging -->
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
@@ -36,6 +36,12 @@
     <ProjectReference Include="..\SmartFactory.Application\SmartFactory.Application.csproj" />
     <ProjectReference Include="..\SmartFactory.Infrastructure\SmartFactory.Infrastructure.csproj" />
     <ProjectReference Include="..\SmartFactory.Infrastructure.OpcUa\SmartFactory.Infrastructure.OpcUa.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
