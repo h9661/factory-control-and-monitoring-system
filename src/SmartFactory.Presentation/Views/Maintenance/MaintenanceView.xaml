@@ -1,11 +1,415 @@
 <UserControl x:Class="SmartFactory.Presentation.Views.Maintenance.MaintenanceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200"
              Background="{StaticResource TertiaryBackgroundBrush}">
+
     <Grid Margin="24">
-        <TextBlock Text="Maintenance Scheduling - Coming Soon"
-                   Style="{StaticResource HeaderTextStyle}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       Text="Maintenance Management"
+                       Style="{StaticResource HeaderTextStyle}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="Schedule Maintenance"
+                        Command="{Binding ShowScheduleDialogCommand}"
+                        Style="{StaticResource IndustrialButtonStyle}"
+                        Margin="0,0,8,0"/>
+                <Button Command="{Binding LoadDataCommand}"
+                        Style="{StaticResource IndustrialButtonStyle}"
+                        Padding="12,8">
+                    <iconPacks:PackIconMaterial Kind="Refresh" Width="16" Height="16"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Summary Cards -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Total Scheduled -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Summary.TotalScheduled, FallbackValue=0}"
+                                   FontSize="32" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Scheduled"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- In Progress -->
+                <Border Grid.Column="1"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Summary.TotalInProgress, FallbackValue=0}"
+                                   FontSize="32" FontWeight="Bold"
+                                   Foreground="#FF9800"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="In Progress"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Completed -->
+                <Border Grid.Column="2"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Summary.TotalCompleted, FallbackValue=0}"
+                                   FontSize="32" FontWeight="Bold"
+                                   Foreground="#4CAF50"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Completed"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Overdue -->
+                <Border Grid.Column="3"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding OverdueAlerts.Count, FallbackValue=0}"
+                                   FontSize="32" FontWeight="Bold"
+                                   Foreground="{StaticResource ErrorBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Overdue"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Cost -->
+                <Border Grid.Column="4"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Summary.TotalCost, StringFormat='${0:N0}', FallbackValue='$0'}"
+                                   FontSize="24" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Total Cost (30d)"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Filters -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,16,0">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                            <Setter Property="Tag" Value="Search maintenance..."/>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding StatusOptions}"
+                          SelectedItem="{Binding StatusFilter}"
+                          Margin="0,0,16,0">
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                            <Setter Property="Tag" Value="Status"/>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <ComboBox Grid.Column="2"
+                          ItemsSource="{Binding TypeOptions}"
+                          SelectedItem="{Binding TypeFilter}"
+                          Margin="0,0,16,0">
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                            <Setter Property="Tag" Value="Type"/>
+                        </Style>
+                    </ComboBox.Style>
+                </ComboBox>
+
+                <Button Grid.Column="4"
+                        Content="Clear Filters"
+                        Command="{Binding ClearFiltersCommand}"
+                        Style="{StaticResource IndustrialButtonStyle}"/>
+            </Grid>
+        </Border>
+
+        <!-- Maintenance Records Grid -->
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <DataGrid ItemsSource="{Binding MaintenanceRecords}"
+                      SelectedItem="{Binding SelectedRecord}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      RowBackground="{StaticResource SecondaryBackgroundBrush}"
+                      AlternatingRowBackground="{StaticResource TertiaryBackgroundBrush}"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                      CanUserSortColumns="True">
+                <DataGrid.Columns>
+                    <!-- Status Indicator -->
+                    <DataGridTemplateColumn Header="" Width="8">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Rectangle Width="4" Fill="{Binding StatusColor}" Margin="0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Equipment" Binding="{Binding EquipmentName}" Width="150"/>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="*" MinWidth="150"/>
+
+                    <DataGridTemplateColumn Header="Type" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TypeDisplay}"
+                                           Foreground="{StaticResource PrimaryTextBrush}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="Status" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding StatusColor}"
+                                        CornerRadius="4"
+                                        Padding="8,4"
+                                        HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding StatusDisplay}"
+                                               Foreground="White"
+                                               FontWeight="SemiBold"
+                                               FontSize="11"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Scheduled" Binding="{Binding ScheduledDate, StringFormat='{}{0:MM/dd/yyyy}'}" Width="100"/>
+                    <DataGridTextColumn Header="Technician" Binding="{Binding TechnicianName}" Width="120"/>
+                    <DataGridTextColumn Header="Est. Cost" Binding="{Binding EstimatedCost, StringFormat='${0:N2}'}" Width="90"/>
+                    <DataGridTextColumn Header="Actual Cost" Binding="{Binding ActualCost, StringFormat='${0:N2}'}" Width="90"/>
+                    <DataGridTextColumn Header="Downtime" Binding="{Binding DowntimeMinutes, StringFormat='{}{0} min'}" Width="80"/>
+
+                    <!-- Actions -->
+                    <DataGridTemplateColumn Header="Actions" Width="180">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Start"
+                                            Command="{Binding DataContext.StartMaintenanceCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IndustrialButtonStyle}"
+                                            Padding="8,4"
+                                            Margin="0,0,4,0"
+                                            IsEnabled="{Binding CanStart}"/>
+                                    <Button Content="Complete"
+                                            Command="{Binding DataContext.ShowCompleteDialogCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource IndustrialButtonStyle}"
+                                            Padding="8,4"
+                                            IsEnabled="{Binding CanComplete}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Pagination -->
+        <Border Grid.Row="4" Style="{StaticResource CardStyle}" Margin="0,16,0,0" Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding MaintenanceRecords.Count, StringFormat='Showing {0} records'}"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Margin="8,0">
+                        <Run Text="Page "/>
+                        <Run Text="{Binding CurrentPage}"/>
+                        <Run Text=" of "/>
+                        <Run Text="{Binding TotalPages}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Schedule Maintenance Dialog -->
+        <Border Grid.RowSpan="5"
+                Background="#80000000"
+                Visibility="{Binding IsScheduleDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="{StaticResource PrimaryBackgroundBrush}"
+                    CornerRadius="8"
+                    Padding="24"
+                    Width="500"
+                    MaxHeight="600"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Schedule Maintenance"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,16"/>
+
+                        <TextBlock Text="Title:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding NewTitle}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Description:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding NewDescription}"
+                                 Height="60"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Type:" Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding TypeOptions}"
+                                  SelectedItem="{Binding NewType}"
+                                  Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Scheduled Date:" Margin="0,0,0,8"/>
+                        <DatePicker SelectedDate="{Binding NewScheduledDate}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Technician Name:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding NewTechnicianName}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Technician ID:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding NewTechnicianId}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Estimated Cost:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding NewEstimatedCost}" Margin="0,0,0,16"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Cancel"
+                                    Command="{Binding CloseScheduleDialogCommand}"
+                                    Style="{StaticResource IndustrialButtonStyle}"
+                                    Margin="0,0,8,0"/>
+                            <Button Content="Schedule"
+                                    Command="{Binding ScheduleMaintenanceCommand}"
+                                    Style="{StaticResource IndustrialButtonStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Border>
+
+        <!-- Complete Maintenance Dialog -->
+        <Border Grid.RowSpan="5"
+                Background="#80000000"
+                Visibility="{Binding IsCompleteDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="{StaticResource PrimaryBackgroundBrush}"
+                    CornerRadius="8"
+                    Padding="24"
+                    Width="500"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Complete Maintenance"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Actual Cost:" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding ActualCost}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Downtime (minutes):" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding DowntimeMinutes}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Parts Used:" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding PartsUsed}"
+                             Height="60"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Completion Notes:" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding CompletionNotes}"
+                             Height="80"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel"
+                                Command="{Binding CloseCompleteDialogCommand}"
+                                Style="{StaticResource IndustrialButtonStyle}"
+                                Margin="0,0,8,0"/>
+                        <Button Content="Complete"
+                                Command="{Binding CompleteMaintenanceCommand}"
+                                Style="{StaticResource IndustrialButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="5"
+                Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200"/>
+                <TextBlock Text="Loading..."
+                           Foreground="White"
+                           Margin="0,16,0,0"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

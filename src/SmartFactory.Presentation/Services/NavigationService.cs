@@ -30,33 +30,58 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException($"View type {viewType.Name} is not registered.");
         }
 
-        // Get ViewModel (convention: ViewName -> ViewNameViewModel)
-        var viewModelTypeName = viewType.FullName?.Replace("Views", "ViewModels").Replace("View", "ViewModel");
+        // Notify previous ViewModel of navigation (do this before changing CurrentView)
+        if (CurrentView is FrameworkElement prevElement &&
+            prevElement.DataContext is INavigationAware prevAware)
+        {
+            prevAware.OnNavigatedFrom();
+        }
+
+        // Get ViewModel by convention: ViewName -> ViewNameViewModel
+        // Replace namespace .Views. with .ViewModels., then append "Model" to class name
+        var viewModelTypeName = viewType.FullName?.Replace(".Views.", ".ViewModels.");
+        if (viewModelTypeName != null && viewModelTypeName.EndsWith("View"))
+        {
+            viewModelTypeName += "Model"; // DashboardView -> DashboardViewModel
+        }
+
+        object? viewModel = null;
+
         if (viewModelTypeName != null)
         {
-            var viewModelType = Type.GetType(viewModelTypeName);
+            var viewModelType = viewType.Assembly.GetType(viewModelTypeName);
+
             if (viewModelType != null)
             {
-                var viewModel = _serviceProvider.GetService(viewModelType);
-
-                if (view is FrameworkElement frameworkElement && viewModel != null)
-                {
-                    frameworkElement.DataContext = viewModel;
-                }
-
-                // Notify previous ViewModel of navigation
-                if (CurrentView is FrameworkElement prevElement &&
-                    prevElement.DataContext is INavigationAware prevAware)
-                {
-                    prevAware.OnNavigatedFrom();
-                }
-
-                // Notify new ViewModel of navigation
-                if (viewModel is INavigationAware navigationAware)
-                {
-                    navigationAware.OnNavigatedTo(parameter);
-                }
+                viewModel = _serviceProvider.GetService(viewModelType);
             }
+
+            // Log when ViewModel resolution fails for debugging
+            if (viewModel == null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[NavigationService] Warning: Could not resolve ViewModel for {viewType.Name}. " +
+                    $"Tried: {viewModelTypeName}");
+            }
+        }
+
+        // Always set DataContext on FrameworkElement to prevent parent inheritance
+        if (view is FrameworkElement frameworkElement)
+        {
+            // Set DataContext even if null to prevent inheriting ShellViewModel
+            frameworkElement.DataContext = viewModel;
+
+            if (viewModel == null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[NavigationService] Warning: DataContext set to null for {viewType.Name}");
+            }
+        }
+
+        // Notify new ViewModel of navigation
+        if (viewModel is INavigationAware navigationAware)
+        {
+            navigationAware.OnNavigatedTo(parameter);
         }
 
         _navigationStack.Push(new NavigationEntry(viewType, parameter));

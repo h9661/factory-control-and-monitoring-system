@@ -13,7 +13,7 @@ public class SensorDataConfiguration : IEntityTypeConfiguration<SensorData>
         builder.HasKey(sd => sd.Id);
 
         builder.Property(sd => sd.Id)
-            .UseIdentityColumn();
+            .ValueGeneratedOnAdd();
 
         builder.Property(sd => sd.TagName)
             .IsRequired()

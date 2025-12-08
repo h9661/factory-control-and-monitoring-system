@@ -19,6 +19,10 @@
             <!-- Converters -->
             <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
+            <converters:EqualityConverter x:Key="EqualityConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

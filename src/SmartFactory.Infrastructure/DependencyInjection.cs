@@ -16,22 +16,20 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Database Context
+        // Database Context - SQLite
+        var connectionString = configuration.GetConnectionString("SmartFactory");
         services.AddDbContext<SmartFactoryDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("SmartFactory"),
-                sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 3,
-                        maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null);
-                }));
+            options.UseSqlite(connectionString));
 
         // Repositories
         services.AddScoped<IFactoryRepository, FactoryRepository>();
         services.AddScoped<IEquipmentRepository, EquipmentRepository>();
         services.AddScoped<IAlarmRepository, AlarmRepository>();
+        services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
+        services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
+        services.AddScoped<IQualityRecordRepository, QualityRecordRepository>();
+        services.AddScoped<IProductionLineRepository, ProductionLineRepository>();
+        services.AddScoped<ISensorDataRepository, SensorDataRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

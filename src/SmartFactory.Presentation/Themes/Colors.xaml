@@ -36,6 +36,12 @@
     <Color x:Key="AlarmWarningColor">#FFA726</Color>
     <Color x:Key="AlarmInfoColor">#29B6F6</Color>
 
+    <!-- Semantic Colors -->
+    <Color x:Key="PrimaryColor">#00BCD4</Color>
+    <Color x:Key="SuccessColor">#4CAF50</Color>
+    <Color x:Key="DangerColor">#F44336</Color>
+    <Color x:Key="InfoColor">#2196F3</Color>
+
     <!-- Chart Colors -->
     <Color x:Key="ChartPrimaryColor">#00BCD4</Color>
     <Color x:Key="ChartSecondaryColor">#4CAF50</Color>
@@ -72,5 +78,11 @@
     <SolidColorBrush x:Key="AlarmErrorBrush" Color="{StaticResource AlarmErrorColor}"/>
     <SolidColorBrush x:Key="AlarmWarningBrush" Color="{StaticResource AlarmWarningColor}"/>
     <SolidColorBrush x:Key="AlarmInfoBrush" Color="{StaticResource AlarmInfoColor}"/>
+
+    <!-- Semantic Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
 
 </ResourceDictionary>

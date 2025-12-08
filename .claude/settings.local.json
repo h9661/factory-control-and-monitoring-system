@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(du:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dir:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git pull:*)",
+      "Bash(find:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(xargs -I {} bash -c 'echo \"\"\"\"=== {} ===\"\"\"\" && grep -E \"\"\"\"^namespace|^public partial class\"\"\"\" {} 2>/dev/null || true')",
+      "Bash(tree:*)",
+      "Bash(dotnet ef migrations add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
