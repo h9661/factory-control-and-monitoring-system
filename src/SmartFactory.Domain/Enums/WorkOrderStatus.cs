@@ -38,3 +38,24 @@ public enum WorkOrderPriority
     Urgent = 3,
     Critical = 4
 }
+
+/// <summary>
+/// Status of a work order step.
+/// </summary>
+public enum WorkOrderStepStatus
+{
+    /// <summary>Step is pending execution.</summary>
+    Pending = 0,
+
+    /// <summary>Step is currently in progress.</summary>
+    InProgress = 1,
+
+    /// <summary>Step has been completed successfully.</summary>
+    Completed = 2,
+
+    /// <summary>Step was skipped.</summary>
+    Skipped = 3,
+
+    /// <summary>Step failed and needs attention.</summary>
+    Failed = 4
+}

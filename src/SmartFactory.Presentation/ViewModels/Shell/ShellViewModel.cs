@@ -95,7 +95,7 @@ public partial class ShellViewModel : ViewModelBase
             new("Maintenance", "Wrench", typeof(MaintenanceView)),
             new("Alarms", "Bell", typeof(AlarmsView)),
             new("Reports", "ChartBar", typeof(ReportsView)),
-            new("Settings", "Settings", typeof(SettingsView))
+            new("Settings", "CogOutline", typeof(SettingsView))
         };
     }
 

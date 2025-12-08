@@ -3,11 +3,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Microsoft.EntityFrameworkCore;
+using SmartFactory.Application;
 using SmartFactory.Infrastructure;
+using SmartFactory.Infrastructure.Data;
+using SmartFactory.Infrastructure.OpcUa;
 using SmartFactory.Presentation.Services;
-using SmartFactory.Presentation.ViewModels.Base;
+using SmartFactory.Presentation.ViewModels.Alarms;
 using SmartFactory.Presentation.ViewModels.Dashboard;
 using SmartFactory.Presentation.ViewModels.Equipment;
+using SmartFactory.Presentation.ViewModels.Maintenance;
+using SmartFactory.Presentation.ViewModels.Production;
+using SmartFactory.Presentation.ViewModels.Quality;
+using SmartFactory.Presentation.ViewModels.Reports;
+using SmartFactory.Presentation.ViewModels.Settings;
 using SmartFactory.Presentation.ViewModels.Shell;
 using SmartFactory.Presentation.Views.Alarms;
 using SmartFactory.Presentation.Views.Dashboard;
@@ -24,7 +33,7 @@ namespace SmartFactory.Presentation;
 /// <summary>
 /// WPF Application entry point with dependency injection setup.
 /// </summary>
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private readonly IHost _host;
 
@@ -54,21 +63,51 @@ public partial class App : Application
 
     private void ConfigureServices(IConfiguration configuration, IServiceCollection services)
     {
-        // Infrastructure
+        // Infrastructure Layer
         services.AddInfrastructure(configuration);
 
-        // Application Services
+        // Application Layer (DTOs, Services, Events, Background Services)
+        services.AddApplication(configuration);
+
+        // OPC-UA Infrastructure
+        services.AddOpcUaInfrastructure(configuration);
+
+        // Presentation Services
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<IFactoryContextService, FactoryContextService>();
 
-        // ViewModels
-        services.AddTransient<ShellViewModel>();
+        // Shell ViewModel
+        services.AddSingleton<ShellViewModel>();
+
+        // ViewModels - Dashboard
         services.AddTransient<DashboardViewModel>();
+
+        // ViewModels - Equipment
         services.AddTransient<EquipmentViewModel>();
         services.AddTransient<EquipmentDetailViewModel>();
 
-        // Views
-        services.AddTransient<ShellView>();
+        // ViewModels - Production
+        services.AddTransient<ProductionViewModel>();
+
+        // ViewModels - Quality
+        services.AddTransient<QualityViewModel>();
+
+        // ViewModels - Maintenance
+        services.AddTransient<MaintenanceViewModel>();
+
+        // ViewModels - Alarms
+        services.AddTransient<AlarmsViewModel>();
+
+        // ViewModels - Reports
+        services.AddTransient<ReportsViewModel>();
+
+        // ViewModels - Settings
+        services.AddTransient<SettingsViewModel>();
+
+        // Views - Shell
+        services.AddSingleton<ShellView>();
+
+        // Views - Main
         services.AddTransient<DashboardView>();
         services.AddTransient<EquipmentView>();
         services.AddTransient<EquipmentDetailView>();
@@ -83,6 +122,13 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         await _host.StartAsync();
+
+        // Apply pending database migrations
+        using (var scope = _host.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<SmartFactoryDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
 
         var shellView = _host.Services.GetRequiredService<ShellView>();
         shellView.DataContext = _host.Services.GetRequiredService<ShellViewModel>();

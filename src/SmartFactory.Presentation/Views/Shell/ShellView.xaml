@@ -88,7 +88,7 @@
         <!-- Main Content Area -->
         <Border Grid.Column="1"
                 Background="{StaticResource TertiaryBackgroundBrush}">
-            <ContentControl Content="{Binding CurrentView}"/>
+            <ContentPresenter Content="{Binding CurrentView}"/>
         </Border>
     </Grid>
 </mah:MetroWindow>
