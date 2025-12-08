@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using SmartFactory.Presentation.Services;
 
 namespace SmartFactory.Presentation.ViewModels.Base;
 

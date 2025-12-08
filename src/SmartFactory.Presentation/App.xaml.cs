@@ -9,8 +9,14 @@ using SmartFactory.Presentation.ViewModels.Base;
 using SmartFactory.Presentation.ViewModels.Dashboard;
 using SmartFactory.Presentation.ViewModels.Equipment;
 using SmartFactory.Presentation.ViewModels.Shell;
+using SmartFactory.Presentation.Views.Alarms;
 using SmartFactory.Presentation.Views.Dashboard;
 using SmartFactory.Presentation.Views.Equipment;
+using SmartFactory.Presentation.Views.Maintenance;
+using SmartFactory.Presentation.Views.Production;
+using SmartFactory.Presentation.Views.Quality;
+using SmartFactory.Presentation.Views.Reports;
+using SmartFactory.Presentation.Views.Settings;
 using SmartFactory.Presentation.Views.Shell;
 
 namespace SmartFactory.Presentation;
@@ -66,6 +72,12 @@ public partial class App : Application
         services.AddTransient<DashboardView>();
         services.AddTransient<EquipmentView>();
         services.AddTransient<EquipmentDetailView>();
+        services.AddTransient<ProductionView>();
+        services.AddTransient<QualityView>();
+        services.AddTransient<MaintenanceView>();
+        services.AddTransient<AlarmsView>();
+        services.AddTransient<ReportsView>();
+        services.AddTransient<SettingsView>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)
