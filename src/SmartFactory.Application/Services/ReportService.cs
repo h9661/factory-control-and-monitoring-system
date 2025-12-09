@@ -310,14 +310,19 @@ public class ReportService : IReportService
             ? await _maintenanceRepository.GetByFactoryAsync(factoryId.Value, cancellationToken)
             : await _maintenanceRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
 
+        // Create lookup dictionary for O(1) access instead of O(n*m) filtering
+        var maintenanceByEquipment = maintenanceRecords
+            .Where(m => m.ScheduledDate >= startDate && m.ScheduledDate <= endDate)
+            .GroupBy(m => m.EquipmentId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         var efficiencyList = new List<EquipmentEfficiencyDto>();
         var totalMinutes = (endDate - startDate).TotalMinutes;
 
         foreach (var eq in equipment)
         {
-            var eqMaintenance = maintenanceRecords
-                .Where(m => m.EquipmentId == eq.Id && m.ScheduledDate >= startDate && m.ScheduledDate <= endDate)
-                .ToList();
+            // O(1) lookup instead of O(m) filtering
+            var eqMaintenance = maintenanceByEquipment.GetValueOrDefault(eq.Id, new List<Domain.Entities.MaintenanceRecord>());
 
             var downtime = eqMaintenance.Sum(m => m.DowntimeMinutes ?? 0);
             var operatingTime = totalMinutes - downtime;

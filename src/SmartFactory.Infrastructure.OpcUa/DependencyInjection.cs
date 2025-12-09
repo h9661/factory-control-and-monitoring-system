@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartFactory.Application.Interfaces;
 using SmartFactory.Infrastructure.OpcUa.Configuration;
 using SmartFactory.Infrastructure.OpcUa.Interfaces;
+using SmartFactory.Infrastructure.OpcUa.Security;
 using SmartFactory.Infrastructure.OpcUa.Services;
 
 namespace SmartFactory.Infrastructure.OpcUa;
@@ -24,6 +25,18 @@ public static class DependencyInjection
     {
         // Configure OPC-UA options
         services.Configure<OpcUaOptions>(configuration.GetSection(OpcUaOptions.SectionName));
+
+        // Register credential provider based on configuration
+        // Use environment variables in production, configuration in demo mode
+        var useEnvironmentCredentials = configuration.GetValue<bool>("OpcUa:Security:UseEnvironmentCredentials");
+        if (useEnvironmentCredentials)
+        {
+            services.AddSingleton<IOpcUaCredentialProvider, EnvironmentCredentialProvider>();
+        }
+        else
+        {
+            services.AddSingleton<IOpcUaCredentialProvider, ConfigurationCredentialProvider>();
+        }
 
         // Register connection manager as singleton
         services.AddSingleton<IOpcUaConnectionManager, OpcUaConnectionManager>();

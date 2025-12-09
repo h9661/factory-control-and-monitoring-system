@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using SmartFactory.Domain.Enums;
+using SmartFactory.Presentation.Themes;
 
 namespace SmartFactory.Presentation.Converters;
 
@@ -24,7 +25,7 @@ public class StringToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -73,7 +74,7 @@ public class EqualityConverter : IMultiValueConverter
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return new object[] { Binding.DoNothing, Binding.DoNothing };
     }
 }
 
@@ -131,7 +132,7 @@ public class BoolToColorConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -144,23 +145,13 @@ public class EquipmentStatusToColorConverter : IValueConverter
     {
         if (value is EquipmentStatus status)
         {
-            return status switch
-            {
-                EquipmentStatus.Running => new SolidColorBrush(Color.FromRgb(0x4C, 0xAF, 0x50)),      // Green
-                EquipmentStatus.Idle => new SolidColorBrush(Color.FromRgb(0x21, 0x96, 0xF3)),         // Blue
-                EquipmentStatus.Warning => new SolidColorBrush(Color.FromRgb(0xFF, 0x98, 0x00)),      // Orange
-                EquipmentStatus.Error => new SolidColorBrush(Color.FromRgb(0xF4, 0x43, 0x36)),        // Red
-                EquipmentStatus.Maintenance => new SolidColorBrush(Color.FromRgb(0x9C, 0x27, 0xB0)),  // Purple
-                EquipmentStatus.Setup => new SolidColorBrush(Color.FromRgb(0x00, 0xBC, 0xD4)),        // Cyan
-                EquipmentStatus.Offline => new SolidColorBrush(Color.FromRgb(0x75, 0x75, 0x75)),      // Gray
-                _ => new SolidColorBrush(Color.FromRgb(0x75, 0x75, 0x75))
-            };
+            return StatusColors.GetBrush(status);
         }
-        return new SolidColorBrush(Colors.Gray);
+        return new SolidColorBrush(StatusColors.Default);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }

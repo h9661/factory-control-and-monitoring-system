@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Opc.Ua;
 using Opc.Ua.Client;
 using SmartFactory.Infrastructure.OpcUa.Configuration;
+using SmartFactory.Infrastructure.OpcUa.Exceptions;
 using SmartFactory.Infrastructure.OpcUa.Interfaces;
 using SmartFactory.Infrastructure.OpcUa.Models;
 
@@ -10,7 +11,7 @@ namespace SmartFactory.Infrastructure.OpcUa.Services;
 /// <summary>
 /// OPC-UA client implementation.
 /// </summary>
-public class OpcUaClient : IOpcUaClient, IDisposable
+public class OpcUaClient : IOpcUaClient, IAsyncDisposable, IDisposable
 {
     private readonly ILogger<OpcUaClient> _logger;
     private readonly OpcUaOptions _options;
@@ -49,6 +50,20 @@ public class OpcUaClient : IOpcUaClient, IDisposable
             _logger.LogInformation("Connecting to OPC-UA server {ServerId} at {Endpoint}",
                 _serverConfig.Id, _serverConfig.EndpointUrl);
 
+            // Get certificate validation settings
+            var certValidation = _options.CertificateValidation;
+            var allowUntrusted = certValidation.GetEffectiveAllowUntrustedCertificates();
+            var addToTrustedStore = certValidation.GetEffectiveAddAppCertToTrustedStore();
+
+            // Log security warnings for non-production configurations
+            if (certValidation.WarnOnInsecureMode && !certValidation.IsProductionSafe)
+            {
+                _logger.LogWarning(
+                    "OPC-UA client connecting with {ValidationMode} certificate validation mode. " +
+                    "This is NOT recommended for production use. Set ValidationMode to 'Strict' for production.",
+                    certValidation.ValidationMode);
+            }
+
             // Create application configuration
             var config = new ApplicationConfiguration
             {
@@ -59,8 +74,8 @@ public class OpcUaClient : IOpcUaClient, IDisposable
                 SecurityConfiguration = new SecurityConfiguration
                 {
                     ApplicationCertificate = new CertificateIdentifier(),
-                    AutoAcceptUntrustedCertificates = true,
-                    AddAppCertToTrustedStore = false
+                    AutoAcceptUntrustedCertificates = allowUntrusted,
+                    AddAppCertToTrustedStore = addToTrustedStore
                 },
                 TransportConfigurations = new TransportConfigurationCollection(),
                 TransportQuotas = new TransportQuotas { OperationTimeout = 15000 },
@@ -192,7 +207,7 @@ public class OpcUaClient : IOpcUaClient, IDisposable
 
         if (StatusCode.IsBad(response.Results[0]))
         {
-            throw new Exception($"Failed to write value to node {nodeId}: {response.Results[0]}");
+            throw new OpcUaWriteException(nodeId, response.Results[0].Code, _serverConfig.Name, value);
         }
     }
 
@@ -350,11 +365,29 @@ public class OpcUaClient : IOpcUaClient, IDisposable
         };
     }
 
+    /// <summary>
+    /// Asynchronously disposes the OPC-UA client, properly disconnecting from the server.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        await DisconnectAsync();
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Synchronously disposes the OPC-UA client.
+    /// Note: Prefer using DisposeAsync for proper async cleanup.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
 
-        DisconnectAsync().GetAwaiter().GetResult();
+        // Fire-and-forget for synchronous disposal context to avoid deadlocks
+        _ = DisconnectAsync();
+        GC.SuppressFinalize(this);
     }
 }

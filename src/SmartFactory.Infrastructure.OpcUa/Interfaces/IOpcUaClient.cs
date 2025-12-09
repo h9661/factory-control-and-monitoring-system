@@ -6,7 +6,7 @@ namespace SmartFactory.Infrastructure.OpcUa.Interfaces;
 /// <summary>
 /// Interface for OPC-UA client operations.
 /// </summary>
-public interface IOpcUaClient
+public interface IOpcUaClient : IAsyncDisposable
 {
     /// <summary>
     /// Connects to the OPC-UA server.

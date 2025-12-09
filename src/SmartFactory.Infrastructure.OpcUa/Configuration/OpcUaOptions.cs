@@ -51,6 +51,12 @@ public class OpcUaOptions
     /// Reconnect interval in milliseconds.
     /// </summary>
     public int ReconnectIntervalMs { get; set; } = 5000;
+
+    /// <summary>
+    /// Certificate validation settings.
+    /// IMPORTANT: Configure for production security requirements.
+    /// </summary>
+    public CertificateValidationOptions CertificateValidation { get; set; } = new();
 }
 
 /// <summary>

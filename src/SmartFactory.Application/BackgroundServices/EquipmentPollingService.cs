@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ public class EquipmentPollingService : BackgroundService
     private readonly IEventAggregator _eventAggregator;
     private readonly ILogger<EquipmentPollingService> _logger;
     private readonly PollingOptions _options;
-    private readonly Dictionary<Guid, EquipmentStatus> _lastKnownStatus = new();
+    private readonly ConcurrentDictionary<Guid, EquipmentStatus> _lastKnownStatus = new();
 
     public EquipmentPollingService(
         IServiceProvider serviceProvider,
@@ -64,7 +65,7 @@ public class EquipmentPollingService : BackgroundService
 
         foreach (var equip in result.Items)
         {
-            var previousStatus = _lastKnownStatus.GetValueOrDefault(equip.Id, equip.Status);
+            var previousStatus = _lastKnownStatus.GetOrAdd(equip.Id, equip.Status);
 
             if (previousStatus != equip.Status)
             {
