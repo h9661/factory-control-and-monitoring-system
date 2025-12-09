@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SmartFactory.Application.BackgroundServices;
 using SmartFactory.Application.Events;
 using SmartFactory.Application.Interfaces;
@@ -76,7 +77,14 @@ public static class DependencyInjection
 
         // Data Source Providers
         services.AddSingleton<SimulatorDataSourceProvider>();
-        services.AddSingleton<HybridDataSourceProvider>();
+        services.AddSingleton<HybridDataSourceProvider>(sp =>
+        {
+            var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HybridDataSourceProvider>>();
+            var simulatorService = sp.GetRequiredService<IDataSimulatorService>();
+            var options = configuration?.GetSection(DataSourceOptions.SectionName).Get<DataSourceOptions>()
+                ?? new DataSourceOptions();
+            return new HybridDataSourceProvider(logger, simulatorService, options, sp);
+        });
 
         // Register the appropriate IDataSourceProvider based on configuration
         services.AddSingleton<IDataSourceProvider>(sp =>
@@ -88,7 +96,7 @@ public static class DependencyInjection
             {
                 DataSourceMode.Simulation => sp.GetRequiredService<SimulatorDataSourceProvider>(),
                 DataSourceMode.Hybrid => sp.GetRequiredService<HybridDataSourceProvider>(),
-                // TODO: Add OpcUaDataSourceProvider when implemented
+                DataSourceMode.OpcUa => ResolveOpcUaProvider(sp),
                 _ => sp.GetRequiredService<SimulatorDataSourceProvider>()
             };
         });
@@ -100,5 +108,33 @@ public static class DependencyInjection
         services.AddHostedService<ProductionSummaryService>();
 
         return services;
+    }
+
+    /// <summary>
+    /// Resolves the OPC-UA data source provider from the service provider.
+    /// Falls back to simulation if OPC-UA infrastructure is not registered.
+    /// </summary>
+    private static IDataSourceProvider ResolveOpcUaProvider(IServiceProvider sp)
+    {
+        // Try to get OpcUaDataSourceProvider by type name (it's registered in Infrastructure.OpcUa)
+        // This avoids a direct reference to Infrastructure layer from Application layer
+        var opcUaProviderType = Type.GetType(
+            "SmartFactory.Infrastructure.OpcUa.Services.OpcUaDataSourceProvider, SmartFactory.Infrastructure.OpcUa");
+
+        if (opcUaProviderType != null)
+        {
+            var provider = sp.GetService(opcUaProviderType) as IDataSourceProvider;
+            if (provider != null)
+            {
+                return provider;
+            }
+        }
+
+        // Fallback to simulation if OPC-UA is not available
+        var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<SimulatorDataSourceProvider>>();
+        logger.LogWarning(
+            "OPC-UA data source provider not found. Ensure AddOpcUaInfrastructure is called before AddApplication. Falling back to simulation.");
+
+        return sp.GetRequiredService<SimulatorDataSourceProvider>();
     }
 }
