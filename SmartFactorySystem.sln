@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFactory.Infrastructure
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFactory.Presentation", "src\SmartFactory.Presentation\SmartFactory.Presentation.csproj", "{675C5B30-6F5D-49AE-B9BA-12533A81E96B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A1B2C3D4-5678-90AB-CDEF-123456789ABC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartFactory.Application.Tests", "tests\SmartFactory.Application.Tests\SmartFactory.Application.Tests.csproj", "{D1E2F3A4-5678-90BC-DEF0-123456789DEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +54,10 @@ Global
 		{675C5B30-6F5D-49AE-B9BA-12533A81E96B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{675C5B30-6F5D-49AE-B9BA-12533A81E96B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{675C5B30-6F5D-49AE-B9BA-12533A81E96B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1E2F3A4-5678-90BC-DEF0-123456789DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1E2F3A4-5678-90BC-DEF0-123456789DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1E2F3A4-5678-90BC-DEF0-123456789DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1E2F3A4-5678-90BC-DEF0-123456789DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{50389879-8346-4095-A51B-23EFD702981F} = {9ED48DD7-78F9-4D39-B4CA-4F03E021E8FA}
@@ -58,5 +66,6 @@ Global
 		{902A0A93-C092-4AB5-A345-C0900D2810D2} = {9ED48DD7-78F9-4D39-B4CA-4F03E021E8FA}
 		{BE35E091-6ED0-4573-87EC-2A151326AA51} = {9ED48DD7-78F9-4D39-B4CA-4F03E021E8FA}
 		{675C5B30-6F5D-49AE-B9BA-12533A81E96B} = {9ED48DD7-78F9-4D39-B4CA-4F03E021E8FA}
+		{D1E2F3A4-5678-90BC-DEF0-123456789DEF} = {A1B2C3D4-5678-90AB-CDEF-123456789ABC}
 	EndGlobalSection
 EndGlobal

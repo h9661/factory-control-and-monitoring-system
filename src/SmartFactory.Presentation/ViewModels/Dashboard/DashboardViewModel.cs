@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -33,13 +34,17 @@ public partial class DashboardViewModel : PageViewModelBase, IDisposable
     private const int MaxDataPoints = 60; // Keep last 60 data points
     private const int ChartRefreshIntervalMs = 2000;
 
-    // Sensor data storage
-    private readonly Dictionary<string, List<double>> _sensorDataBuffer = new()
-    {
-        ["Temperature"] = new(),
-        ["Vibration"] = new(),
-        ["Pressure"] = new()
-    };
+    // Lock object for buffer operations
+    private readonly object _bufferLock = new();
+
+    // Sensor data storage (thread-safe dictionary with regular lists, protected by lock)
+    private readonly ConcurrentDictionary<string, List<double>> _sensorDataBuffer = new(
+        new Dictionary<string, List<double>>
+        {
+            ["Temperature"] = new(),
+            ["Vibration"] = new(),
+            ["Pressure"] = new()
+        });
 
     // Production data storage
     private readonly List<double> _productionDataBuffer = new();
@@ -282,12 +287,15 @@ public partial class DashboardViewModel : PageViewModelBase, IDisposable
     {
         System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
         {
-            // Update buffer
-            if (_sensorDataBuffer.TryGetValue(e.TagName, out var buffer))
+            // Update buffer with lock for thread safety
+            lock (_bufferLock)
             {
-                buffer.Add(e.Value);
-                if (buffer.Count > MaxDataPoints)
-                    buffer.RemoveAt(0);
+                if (_sensorDataBuffer.TryGetValue(e.TagName, out var buffer))
+                {
+                    buffer.Add(e.Value);
+                    if (buffer.Count > MaxDataPoints)
+                        buffer.RemoveAt(0);
+                }
             }
 
             // Update current value displays
@@ -336,9 +344,12 @@ public partial class DashboardViewModel : PageViewModelBase, IDisposable
     {
         System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
         {
-            _productionDataBuffer.Add(e.UnitsProduced);
-            if (_productionDataBuffer.Count > 12) // Keep last 12 intervals
-                _productionDataBuffer.RemoveAt(0);
+            lock (_bufferLock)
+            {
+                _productionDataBuffer.Add(e.UnitsProduced);
+                if (_productionDataBuffer.Count > 12) // Keep last 12 intervals
+                    _productionDataBuffer.RemoveAt(0);
+            }
         });
     }
 
@@ -355,21 +366,25 @@ public partial class DashboardViewModel : PageViewModelBase, IDisposable
 
     private void OnChartRefreshTick(object? sender, EventArgs e)
     {
-        // Update sensor trend chart
-        if (SensorTrendSeries.Length >= 3)
+        // Update charts with lock for thread safety
+        lock (_bufferLock)
         {
-            if (SensorTrendSeries[0] is LineSeries<double> tempSeries)
-                tempSeries.Values = _sensorDataBuffer["Temperature"].ToList();
-            if (SensorTrendSeries[1] is LineSeries<double> vibSeries)
-                vibSeries.Values = _sensorDataBuffer["Vibration"].ToList();
-            if (SensorTrendSeries[2] is LineSeries<double> presSeries)
-                presSeries.Values = _sensorDataBuffer["Pressure"].ToList();
-        }
+            // Update sensor trend chart
+            if (SensorTrendSeries.Length >= 3)
+            {
+                if (SensorTrendSeries[0] is LineSeries<double> tempSeries)
+                    tempSeries.Values = _sensorDataBuffer["Temperature"].ToList();
+                if (SensorTrendSeries[1] is LineSeries<double> vibSeries)
+                    vibSeries.Values = _sensorDataBuffer["Vibration"].ToList();
+                if (SensorTrendSeries[2] is LineSeries<double> presSeries)
+                    presSeries.Values = _sensorDataBuffer["Pressure"].ToList();
+            }
 
-        // Update production chart
-        if (ProductionSeries.Length > 0 && ProductionSeries[0] is ColumnSeries<double> prodSeries)
-        {
-            prodSeries.Values = _productionDataBuffer.ToList();
+            // Update production chart
+            if (ProductionSeries.Length > 0 && ProductionSeries[0] is ColumnSeries<double> prodSeries)
+            {
+                prodSeries.Values = _productionDataBuffer.ToList();
+            }
         }
     }
 

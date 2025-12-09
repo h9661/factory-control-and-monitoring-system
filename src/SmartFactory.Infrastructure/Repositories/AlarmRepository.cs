@@ -97,17 +97,21 @@ public class AlarmRepository : RepositoryBase<Alarm>, IAlarmRepository
             query = query.Where(a => a.Equipment.ProductionLine.FactoryId == factoryId.Value);
         }
 
-        var alarms = await query.ToListAsync(cancellationToken);
+        // Use database-level aggregation instead of loading all records into memory
+        var summary = await query
+            .GroupBy(a => 1)
+            .Select(g => new AlarmSummary
+            {
+                TotalActive = g.Count(),
+                CriticalCount = g.Count(a => a.Severity == AlarmSeverity.Critical),
+                ErrorCount = g.Count(a => a.Severity == AlarmSeverity.Error),
+                WarningCount = g.Count(a => a.Severity == AlarmSeverity.Warning),
+                InformationCount = g.Count(a => a.Severity == AlarmSeverity.Information),
+                AcknowledgedCount = g.Count(a => a.Status == AlarmStatus.Acknowledged),
+                UnacknowledgedCount = g.Count(a => a.Status == AlarmStatus.Active)
+            })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return new AlarmSummary
-        {
-            TotalActive = alarms.Count,
-            CriticalCount = alarms.Count(a => a.Severity == AlarmSeverity.Critical),
-            ErrorCount = alarms.Count(a => a.Severity == AlarmSeverity.Error),
-            WarningCount = alarms.Count(a => a.Severity == AlarmSeverity.Warning),
-            InformationCount = alarms.Count(a => a.Severity == AlarmSeverity.Information),
-            AcknowledgedCount = alarms.Count(a => a.Status == AlarmStatus.Acknowledged),
-            UnacknowledgedCount = alarms.Count(a => a.Status == AlarmStatus.Active)
-        };
+        return summary ?? new AlarmSummary();
     }
 }
