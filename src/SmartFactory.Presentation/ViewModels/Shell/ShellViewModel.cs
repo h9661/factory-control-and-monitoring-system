@@ -12,6 +12,8 @@ using SmartFactory.Presentation.Views.Equipment;
 using SmartFactory.Presentation.Views.Maintenance;
 using SmartFactory.Presentation.Views.Production;
 using SmartFactory.Presentation.Views.Quality;
+using SmartFactory.Presentation.Views.Analytics;
+using SmartFactory.Presentation.Views.FloorPlan;
 using SmartFactory.Presentation.Views.Reports;
 using SmartFactory.Presentation.Views.Settings;
 
@@ -89,6 +91,9 @@ public partial class ShellViewModel : ViewModelBase
         NavigationItems = new ObservableCollection<NavigationItem>
         {
             new("Dashboard", "ViewDashboard", typeof(DashboardView)),
+            new("Floor Plan", "FloorPlan", typeof(FloorPlanView)),
+            new("OEE Analytics", "ChartArc", typeof(OeeAnalyticsView)),
+            new("Predictive Maint.", "HeartPulse", typeof(PredictiveMaintenanceView)),
             new("Equipment", "Cog", typeof(EquipmentView)),
             new("Production", "Factory", typeof(ProductionView)),
             new("Quality", "CheckCircle", typeof(QualityView)),

@@ -4,29 +4,71 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="1200"
+             d:DesignHeight="900" d:DesignWidth="1400"
              Background="{StaticResource TertiaryBackgroundBrush}">
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock Text="Factory Dashboard"
-                       Style="{StaticResource HeaderTextStyle}"/>
-            <Button Content="Refresh"
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource IndustrialButtonStyle}"
-                    HorizontalAlignment="Right"/>
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="Factory Dashboard"
+                           Style="{StaticResource HeaderTextStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <Ellipse Width="8" Height="8"
+                             Fill="{Binding IsSimulationRunning, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=RunningBrush}"
+                             Margin="0,0,8,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSimulationRunning}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource RunningBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding DataSourceStatus}"
+                               Style="{StaticResource CaptionTextStyle}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Command="{Binding ToggleSimulationCommand}"
+                        Margin="0,0,12,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IndustrialButtonStyle}">
+                            <Setter Property="Content" Value="Start Simulation"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSimulationRunning}" Value="True">
+                                    <Setter Property="Content" Value="Stop Simulation"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource IndustrialButtonStyle}"/>
+            </StackPanel>
         </Grid>
 
         <!-- KPI Cards Row -->
-        <UniformGrid Grid.Row="1" Rows="1" Columns="4" Margin="0,0,0,24">
+        <UniformGrid Grid.Row="1" Rows="1" Columns="4" Margin="0,0,0,20">
             <!-- Equipment Running Card -->
             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
                 <StackPanel>
@@ -102,154 +144,238 @@
             </Border>
         </UniformGrid>
 
-        <!-- Main Content -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Equipment Status & Charts Area -->
-            <Border Grid.Column="0"
-                    Style="{StaticResource CardStyle}"
-                    Margin="0,0,12,0">
+        <!-- Current Sensor Values Row -->
+        <UniformGrid Grid.Row="2" Rows="1" Columns="3" Margin="0,0,0,20">
+            <!-- Temperature -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0" Padding="16">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Equipment Status Overview"
-                               Style="{StaticResource SubHeaderTextStyle}"
-                               Margin="0,0,0,16"/>
-
-                    <!-- Equipment Status Summary -->
-                    <StackPanel Grid.Row="1">
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource RunningBrush}"/>
-                                <TextBlock Text="Running" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.RunningCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource IdleBrush}"/>
-                                <TextBlock Text="Idle" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.IdleCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource WarningBrush}"/>
-                                <TextBlock Text="Warning" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.WarningCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource ErrorBrush}"/>
-                                <TextBlock Text="Error" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.ErrorCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource MaintenanceBrush}"/>
-                                <TextBlock Text="Maintenance" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.MaintenanceCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
-                        <Grid Margin="0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="12" Height="12" Fill="{StaticResource OfflineBrush}"/>
-                                <TextBlock Text="Offline" Style="{StaticResource BodyTextStyle}" Margin="8,0"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding EquipmentSummary.OfflineCount, FallbackValue=0}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       FontWeight="Bold"/>
-                        </Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial Kind="Thermometer" Width="32" Height="32"
+                                                Foreground="#FF5722" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                        <TextBlock Text="Temperature" Style="{StaticResource CaptionTextStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CurrentTemperature, StringFormat='{}{0:F1}'}"
+                                       FontSize="24" FontWeight="SemiBold" Foreground="#FF5722"/>
+                            <TextBlock Text="°C" FontSize="14" Foreground="{StaticResource SecondaryTextBrush}"
+                                       Margin="4,8,0,0"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- Recent Alarms Panel -->
-            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+            <!-- Vibration -->
+            <Border Style="{StaticResource CardStyle}" Margin="6,0" Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial Kind="Vibrate" Width="32" Height="32"
+                                                Foreground="#4CAF50" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                        <TextBlock Text="Vibration" Style="{StaticResource CaptionTextStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CurrentVibration, StringFormat='{}{0:F2}'}"
+                                       FontSize="24" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                            <TextBlock Text="mm/s" FontSize="14" Foreground="{StaticResource SecondaryTextBrush}"
+                                       Margin="4,8,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Pressure -->
+            <Border Style="{StaticResource CardStyle}" Margin="12,0,0,0" Padding="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial Kind="GaugeFull" Width="32" Height="32"
+                                                Foreground="#2196F3" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                        <TextBlock Text="Pressure" Style="{StaticResource CaptionTextStyle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CurrentPressure, StringFormat='{}{0:F2}'}"
+                                       FontSize="24" FontWeight="SemiBold" Foreground="#2196F3"/>
+                            <TextBlock Text="bar" FontSize="14" Foreground="{StaticResource SecondaryTextBrush}"
+                                       Margin="4,8,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </UniformGrid>
+
+        <!-- Main Content with Charts -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Sensor Trend Chart -->
+            <Border Grid.Column="0" Grid.Row="0"
+                    Style="{StaticResource CardStyle}"
+                    Margin="0,0,12,12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Recent Alarms"
-                               Style="{StaticResource SubHeaderTextStyle}"
-                               Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="ChartTimeline" Width="20" Height="20"
+                                                    Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="Real-Time Sensor Trends"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding SensorTrendSeries}"
+                                        XAxes="{Binding SensorXAxes}"
+                                        YAxes="{Binding SensorYAxes}"
+                                        AnimationsSpeed="00:00:00.300"
+                                        ZoomMode="X"
+                                        TooltipPosition="Top">
+                        <lvc:CartesianChart.LegendPosition>Top</lvc:CartesianChart.LegendPosition>
+                    </lvc:CartesianChart>
+                </Grid>
+            </Border>
+
+            <!-- Equipment Status Pie Chart -->
+            <Border Grid.Column="1" Grid.Row="0"
+                    Style="{StaticResource CardStyle}"
+                    Margin="0,0,0,12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="ChartDonut" Width="20" Height="20"
+                                                    Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="Equipment Status"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <lvc:PieChart Grid.Row="1"
+                                  Series="{Binding EquipmentStatusSeries}"
+                                  AnimationsSpeed="00:00:00.500"
+                                  TooltipPosition="Center">
+                        <lvc:PieChart.LegendPosition>Right</lvc:PieChart.LegendPosition>
+                    </lvc:PieChart>
+                </Grid>
+            </Border>
+
+            <!-- Production Output Chart -->
+            <Border Grid.Column="0" Grid.Row="1"
+                    Style="{StaticResource CardStyle}"
+                    Margin="0,0,12,0"
+                    MinHeight="180">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="ChartBar" Width="20" Height="20"
+                                                    Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="Production Output"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <lvc:CartesianChart Grid.Row="1"
+                                        Series="{Binding ProductionSeries}"
+                                        XAxes="{Binding ProductionXAxes}"
+                                        YAxes="{Binding ProductionYAxes}"
+                                        AnimationsSpeed="00:00:00.300">
+                    </lvc:CartesianChart>
+                </Grid>
+            </Border>
+
+            <!-- Recent Alarms Panel -->
+            <Border Grid.Column="1" Grid.Row="1"
+                    Style="{StaticResource CardStyle}"
+                    MinHeight="180">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <iconPacks:PackIconMaterial Kind="AlertCircle" Width="20" Height="20"
+                                                    Foreground="{StaticResource ErrorBrush}"/>
+                        <TextBlock Text="Recent Alarms"
+                                   Style="{StaticResource SubHeaderTextStyle}"
+                                   Margin="8,0,0,0"/>
+                    </StackPanel>
 
                     <ListBox Grid.Row="1"
                              ItemsSource="{Binding RecentAlarms}"
                              Background="Transparent"
-                             BorderThickness="0">
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{StaticResource BorderBrush}"
                                         BorderThickness="0,0,0,1"
-                                        Padding="0,8">
+                                        Padding="0,6">
                                     <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding AlarmCode}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource PrimaryTextBrush}"/>
-                                            <TextBlock Text="{Binding Severity}"
-                                                       Margin="8,0,0,0"
-                                                       Foreground="{StaticResource WarningBrush}"
-                                                       FontSize="12"/>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Severity Indicator -->
+                                        <Rectangle Grid.Column="0" Width="4" RadiusX="2" RadiusY="2">
+                                            <Rectangle.Style>
+                                                <Style TargetType="Rectangle">
+                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="Critical">
+                                                            <Setter Property="Fill" Value="#D32F2F"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                            <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Severity}" Value="Information">
+                                                            <Setter Property="Fill" Value="{StaticResource IdleBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Rectangle.Style>
+                                        </Rectangle>
+
+                                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding AlarmCode}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"/>
+                                                <TextBlock Text="{Binding EquipmentName}"
+                                                           Margin="8,0,0,0"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Message}"
+                                                       Style="{StaticResource CaptionTextStyle}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       FontSize="11"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Row="1"
-                                                   Text="{Binding Message}"
-                                                   Style="{StaticResource CaptionTextStyle}"
-                                                   TextTrimming="CharacterEllipsis"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

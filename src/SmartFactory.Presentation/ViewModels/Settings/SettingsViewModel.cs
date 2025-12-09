@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Options;
 using SmartFactory.Application.DTOs.Factory;
 using SmartFactory.Application.Interfaces;
+using SmartFactory.Application.Services.DataSource;
 using SmartFactory.Presentation.Services;
 using SmartFactory.Presentation.ViewModels.Base;
 
@@ -28,8 +30,39 @@ public partial class SettingsViewModel : PageViewModelBase
     [ObservableProperty]
     private ObservableCollection<string> _tabs = new()
     {
-        "Factories", "Production Lines", "Application", "About"
+        "Factories", "Data Source", "Production Lines", "Application", "About"
     };
+
+    // Data Source Settings
+    [ObservableProperty]
+    private string _dataSourceMode = "Simulation";
+
+    [ObservableProperty]
+    private ObservableCollection<string> _dataSourceModes = new()
+    {
+        "Simulation", "OPC-UA", "Hybrid"
+    };
+
+    [ObservableProperty]
+    private string _opcUaServerUrl = "opc.tcp://localhost:4840";
+
+    [ObservableProperty]
+    private bool _opcUaSecurityEnabled = false;
+
+    [ObservableProperty]
+    private string _opcUaUsername = string.Empty;
+
+    [ObservableProperty]
+    private string _opcUaPassword = string.Empty;
+
+    [ObservableProperty]
+    private bool _isOpcUaConnected;
+
+    [ObservableProperty]
+    private string _opcUaConnectionStatus = "Disconnected";
+
+    [ObservableProperty]
+    private bool _isTestingConnection;
 
     // Application Settings
     [ObservableProperty]
@@ -235,6 +268,56 @@ public partial class SettingsViewModel : PageViewModelBase
         {
             SelectedTab = tab;
         }
+    }
+
+    [RelayCommand]
+    private async Task TestOpcUaConnectionAsync()
+    {
+        if (IsTestingConnection) return;
+
+        try
+        {
+            IsTestingConnection = true;
+            OpcUaConnectionStatus = "Testing...";
+
+            // Simulate connection test - in production this would use the actual OPC-UA client
+            await Task.Delay(2000); // Simulate network delay
+
+            // For demonstration, we'll simulate success/failure based on URL format
+            if (!string.IsNullOrEmpty(OpcUaServerUrl) && OpcUaServerUrl.StartsWith("opc.tcp://"))
+            {
+                IsOpcUaConnected = true;
+                OpcUaConnectionStatus = "Connected";
+            }
+            else
+            {
+                IsOpcUaConnected = false;
+                OpcUaConnectionStatus = "Failed: Invalid URL format";
+            }
+        }
+        catch (Exception ex)
+        {
+            IsOpcUaConnected = false;
+            OpcUaConnectionStatus = $"Failed: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingConnection = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SaveDataSourceSettings()
+    {
+        // Save data source settings to configuration
+        // This would typically persist to appsettings.json or user settings
+        // For now, we just show that the settings have been saved
+    }
+
+    partial void OnDataSourceModeChanged(string value)
+    {
+        // React to data source mode changes
+        // Could trigger service reinitialization
     }
 }
 

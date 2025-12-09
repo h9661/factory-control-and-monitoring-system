@@ -47,6 +47,44 @@
     <Color x:Key="ChartSecondaryColor">#4CAF50</Color>
     <Color x:Key="ChartTertiaryColor">#FF9800</Color>
     <Color x:Key="ChartQuaternaryColor">#9C27B0</Color>
+    <Color x:Key="ChartQuinaryColor">#E91E63</Color>
+    <Color x:Key="ChartSenaryColor">#3F51B5</Color>
+
+    <!-- Extended Chart Palette -->
+    <Color x:Key="ChartColor1">#00BCD4</Color>
+    <Color x:Key="ChartColor2">#4CAF50</Color>
+    <Color x:Key="ChartColor3">#FF9800</Color>
+    <Color x:Key="ChartColor4">#9C27B0</Color>
+    <Color x:Key="ChartColor5">#E91E63</Color>
+    <Color x:Key="ChartColor6">#3F51B5</Color>
+    <Color x:Key="ChartColor7">#009688</Color>
+    <Color x:Key="ChartColor8">#CDDC39</Color>
+
+    <!-- OEE Specific Colors -->
+    <Color x:Key="OeeExcellentColor">#4CAF50</Color>
+    <Color x:Key="OeeGoodColor">#8BC34A</Color>
+    <Color x:Key="OeeAcceptableColor">#FFEB3B</Color>
+    <Color x:Key="OeePoorColor">#FF9800</Color>
+    <Color x:Key="OeeCriticalColor">#F44336</Color>
+
+    <!-- Gauge Colors -->
+    <Color x:Key="GaugeBackgroundColor">#2D2D30</Color>
+    <Color x:Key="GaugeNeedleColor">#FFFFFF</Color>
+    <Color x:Key="GaugeTickColor">#666666</Color>
+
+    <!-- Health Score Colors -->
+    <Color x:Key="HealthExcellentColor">#4CAF50</Color>
+    <Color x:Key="HealthGoodColor">#8BC34A</Color>
+    <Color x:Key="HealthFairColor">#FFEB3B</Color>
+    <Color x:Key="HealthPoorColor">#FF9800</Color>
+    <Color x:Key="HealthCriticalColor">#F44336</Color>
+
+    <!-- Sensor Data Colors -->
+    <Color x:Key="TemperatureColor">#F44336</Color>
+    <Color x:Key="VibrationColor">#FF9800</Color>
+    <Color x:Key="PressureColor">#2196F3</Color>
+    <Color x:Key="PowerColor">#FFEB3B</Color>
+    <Color x:Key="SpeedColor">#4CAF50</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBackgroundBrush" Color="{StaticResource PrimaryBackgroundColor}"/>
@@ -84,5 +122,39 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
     <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+
+    <!-- Chart Brushes -->
+    <SolidColorBrush x:Key="ChartPrimaryBrush" Color="{StaticResource ChartPrimaryColor}"/>
+    <SolidColorBrush x:Key="ChartSecondaryBrush" Color="{StaticResource ChartSecondaryColor}"/>
+    <SolidColorBrush x:Key="ChartTertiaryBrush" Color="{StaticResource ChartTertiaryColor}"/>
+    <SolidColorBrush x:Key="ChartQuaternaryBrush" Color="{StaticResource ChartQuaternaryColor}"/>
+    <SolidColorBrush x:Key="ChartQuinaryBrush" Color="{StaticResource ChartQuinaryColor}"/>
+    <SolidColorBrush x:Key="ChartSenaryBrush" Color="{StaticResource ChartSenaryColor}"/>
+
+    <!-- OEE Brushes -->
+    <SolidColorBrush x:Key="OeeExcellentBrush" Color="{StaticResource OeeExcellentColor}"/>
+    <SolidColorBrush x:Key="OeeGoodBrush" Color="{StaticResource OeeGoodColor}"/>
+    <SolidColorBrush x:Key="OeeAcceptableBrush" Color="{StaticResource OeeAcceptableColor}"/>
+    <SolidColorBrush x:Key="OeePoorBrush" Color="{StaticResource OeePoorColor}"/>
+    <SolidColorBrush x:Key="OeeCriticalBrush" Color="{StaticResource OeeCriticalColor}"/>
+
+    <!-- Gauge Brushes -->
+    <SolidColorBrush x:Key="GaugeBackgroundBrush" Color="{StaticResource GaugeBackgroundColor}"/>
+    <SolidColorBrush x:Key="GaugeNeedleBrush" Color="{StaticResource GaugeNeedleColor}"/>
+    <SolidColorBrush x:Key="GaugeTickBrush" Color="{StaticResource GaugeTickColor}"/>
+
+    <!-- Health Score Brushes -->
+    <SolidColorBrush x:Key="HealthExcellentBrush" Color="{StaticResource HealthExcellentColor}"/>
+    <SolidColorBrush x:Key="HealthGoodBrush" Color="{StaticResource HealthGoodColor}"/>
+    <SolidColorBrush x:Key="HealthFairBrush" Color="{StaticResource HealthFairColor}"/>
+    <SolidColorBrush x:Key="HealthPoorBrush" Color="{StaticResource HealthPoorColor}"/>
+    <SolidColorBrush x:Key="HealthCriticalBrush" Color="{StaticResource HealthCriticalColor}"/>
+
+    <!-- Sensor Data Brushes -->
+    <SolidColorBrush x:Key="TemperatureBrush" Color="{StaticResource TemperatureColor}"/>
+    <SolidColorBrush x:Key="VibrationBrush" Color="{StaticResource VibrationColor}"/>
+    <SolidColorBrush x:Key="PressureBrush" Color="{StaticResource PressureColor}"/>
+    <SolidColorBrush x:Key="PowerBrush" Color="{StaticResource PowerColor}"/>
+    <SolidColorBrush x:Key="SpeedBrush" Color="{StaticResource SpeedColor}"/>
 
 </ResourceDictionary>

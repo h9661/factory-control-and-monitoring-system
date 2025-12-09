@@ -142,6 +142,167 @@
                             </DataGrid>
                         </StackPanel>
 
+                        <!-- Data Source Tab -->
+                        <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Data Source'}">
+                            <TextBlock Text="Data Source Configuration"
+                                       FontSize="18" FontWeight="SemiBold"
+                                       Margin="0,0,0,24"/>
+
+                            <!-- Data Source Mode Selection -->
+                            <Border Background="{StaticResource SecondaryBackgroundBrush}"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    Margin="0,0,0,16"
+                                    MaxWidth="600"
+                                    HorizontalAlignment="Left">
+                                <StackPanel>
+                                    <TextBlock Text="Data Source Mode"
+                                               FontWeight="SemiBold"
+                                               Margin="0,0,0,12"/>
+                                    <TextBlock Text="Select how the application receives equipment and sensor data."
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,16"/>
+
+                                    <ComboBox ItemsSource="{Binding DataSourceModes}"
+                                              SelectedItem="{Binding DataSourceMode}"
+                                              Width="200"
+                                              HorizontalAlignment="Left"/>
+
+                                    <StackPanel Margin="0,12,0,0">
+                                        <TextBlock FontSize="12" Foreground="{StaticResource SecondaryTextBrush}">
+                                            <Run FontWeight="SemiBold">Simulation:</Run>
+                                            <Run Text="Generate realistic test data for demonstration"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,4,0,0">
+                                            <Run FontWeight="SemiBold">OPC-UA:</Run>
+                                            <Run Text="Connect to industrial OPC-UA server for real data"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,4,0,0">
+                                            <Run FontWeight="SemiBold">Hybrid:</Run>
+                                            <Run Text="Use OPC-UA when available, fallback to simulation"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- OPC-UA Configuration -->
+                            <Border Background="{StaticResource SecondaryBackgroundBrush}"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    MaxWidth="600"
+                                    HorizontalAlignment="Left">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel>
+                                            <TextBlock Text="OPC-UA Server Configuration"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="Configure connection to OPC-UA server for industrial data"
+                                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                                       FontSize="12"
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+
+                                        <!-- Connection Status Indicator -->
+                                        <Border Grid.Column="1"
+                                                Background="{Binding IsOpcUaConnected, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#4CAF50|#F44336'}"
+                                                CornerRadius="4"
+                                                Padding="12,6">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="8" Height="8"
+                                                         Fill="White"
+                                                         Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding OpcUaConnectionStatus}"
+                                                           Foreground="White"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Server URL -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                                   Text="Server URL:"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,0,12"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{Binding OpcUaServerUrl, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,0,0,12"/>
+
+                                        <!-- Security Enabled -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                                   Text="Enable Security:"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,0,12"/>
+                                        <CheckBox Grid.Row="1" Grid.Column="1"
+                                                  IsChecked="{Binding OpcUaSecurityEnabled}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,0,12"/>
+
+                                        <!-- Username (only visible when security enabled) -->
+                                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                                   Text="Username:"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,0,12"
+                                                   Visibility="{Binding OpcUaSecurityEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Text="{Binding OpcUaUsername}"
+                                                 Margin="0,0,0,12"
+                                                 Visibility="{Binding OpcUaSecurityEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <!-- Password (only visible when security enabled) -->
+                                        <TextBlock Grid.Row="3" Grid.Column="0"
+                                                   Text="Password:"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,0,12"
+                                                   Visibility="{Binding OpcUaSecurityEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <PasswordBox Grid.Row="3" Grid.Column="1"
+                                                     Margin="0,0,0,12"
+                                                     Visibility="{Binding OpcUaSecurityEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </Grid>
+
+                                    <!-- Action Buttons -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Button Content="Test Connection"
+                                                Command="{Binding TestOpcUaConnectionCommand}"
+                                                Style="{StaticResource IndustrialButtonStyle}"
+                                                Padding="16,8"
+                                                Margin="0,0,8,0"
+                                                IsEnabled="{Binding IsTestingConnection, Converter={StaticResource InverseBoolConverter}}"/>
+                                        <Button Content="Save Settings"
+                                                Command="{Binding SaveDataSourceSettingsCommand}"
+                                                Style="{StaticResource IndustrialButtonStyle}"
+                                                Padding="16,8"/>
+
+                                        <!-- Loading indicator during connection test -->
+                                        <ProgressBar IsIndeterminate="True"
+                                                     Width="100"
+                                                     Height="4"
+                                                     Margin="16,0,0,0"
+                                                     VerticalAlignment="Center"
+                                                     Visibility="{Binding IsTestingConnection, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
                         <!-- Production Lines Tab -->
                         <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Production Lines'}">
                             <TextBlock Text="Production Lines"
@@ -250,11 +411,13 @@
                                     <TextBlock Text="Features:" FontWeight="SemiBold" Margin="0,0,0,8"/>
                                     <StackPanel Margin="16,0,0,0">
                                         <TextBlock Text="• Real-time equipment monitoring"/>
-                                        <TextBlock Text="• Work order management"/>
+                                        <TextBlock Text="• Interactive equipment floor plan"/>
+                                        <TextBlock Text="• LiveCharts dashboard with real-time data"/>
+                                        <TextBlock Text="• OEE analytics (Availability, Performance, Quality)"/>
+                                        <TextBlock Text="• Predictive maintenance with health scoring"/>
+                                        <TextBlock Text="• OPC-UA industrial connectivity"/>
                                         <TextBlock Text="• Alarm and notification system"/>
-                                        <TextBlock Text="• Maintenance scheduling"/>
-                                        <TextBlock Text="• Quality control tracking"/>
-                                        <TextBlock Text="• OEE analytics and reporting"/>
+                                        <TextBlock Text="• Work order management"/>
                                     </StackPanel>
 
                                     <Rectangle Height="1" Fill="{StaticResource BorderBrush}" Margin="0,16"/>

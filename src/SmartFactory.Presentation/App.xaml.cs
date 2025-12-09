@@ -18,7 +18,11 @@ using SmartFactory.Presentation.ViewModels.Quality;
 using SmartFactory.Presentation.ViewModels.Reports;
 using SmartFactory.Presentation.ViewModels.Settings;
 using SmartFactory.Presentation.ViewModels.Shell;
+using SmartFactory.Presentation.ViewModels.Analytics;
+using SmartFactory.Presentation.ViewModels.FloorPlan;
 using SmartFactory.Presentation.Views.Alarms;
+using SmartFactory.Presentation.Views.Analytics;
+using SmartFactory.Presentation.Views.FloorPlan;
 using SmartFactory.Presentation.Views.Dashboard;
 using SmartFactory.Presentation.Views.Equipment;
 using SmartFactory.Presentation.Views.Maintenance;
@@ -94,6 +98,7 @@ public partial class App : System.Windows.Application
 
         // ViewModels - Maintenance
         services.AddTransient<MaintenanceViewModel>();
+        services.AddTransient<PredictiveMaintenanceViewModel>();
 
         // ViewModels - Alarms
         services.AddTransient<AlarmsViewModel>();
@@ -103,6 +108,12 @@ public partial class App : System.Windows.Application
 
         // ViewModels - Settings
         services.AddTransient<SettingsViewModel>();
+
+        // ViewModels - Analytics
+        services.AddTransient<OeeAnalyticsViewModel>();
+
+        // ViewModels - Floor Plan
+        services.AddTransient<FloorPlanViewModel>();
 
         // Views - Shell
         services.AddSingleton<ShellView>();
@@ -117,6 +128,9 @@ public partial class App : System.Windows.Application
         services.AddTransient<AlarmsView>();
         services.AddTransient<ReportsView>();
         services.AddTransient<SettingsView>();
+        services.AddTransient<OeeAnalyticsView>();
+        services.AddTransient<PredictiveMaintenanceView>();
+        services.AddTransient<FloorPlanView>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)

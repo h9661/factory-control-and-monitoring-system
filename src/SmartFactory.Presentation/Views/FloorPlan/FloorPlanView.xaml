@@ -1,0 +1,366 @@
+<UserControl x:Class="SmartFactory.Presentation.Views.FloorPlan.FloorPlanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:floorplan="clr-namespace:SmartFactory.Presentation.Controls.FloorPlan"
+             xmlns:converters="clr-namespace:SmartFactory.Presentation.Converters"
+             Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+
+    <UserControl.Resources>
+        <converters:EquipmentStatusToColorConverter x:Key="StatusToColorConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header with controls -->
+        <Border Grid.Row="0" Background="{DynamicResource MahApps.Brushes.Gray10}" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title and Statistics -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <iconPacks:PackIconMaterial Kind="FloorPlan" Width="24" Height="24"
+                                                 Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                 VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="Equipment Floor Plan" FontSize="20" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                               VerticalAlignment="Center" Margin="0,0,24,0"/>
+
+                    <!-- Status summary badges -->
+                    <Border Background="#4CAF50" CornerRadius="12" Padding="10,4" Margin="4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="Play" Width="12" Height="12" Foreground="White" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding RunningCount}" Foreground="White" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#FF9800" CornerRadius="12" Padding="10,4" Margin="4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="Alert" Width="12" Height="12" Foreground="White" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding WarningCount}" Foreground="White" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#F44336" CornerRadius="12" Padding="10,4" Margin="4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="AlertCircle" Width="12" Height="12" Foreground="White" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding ErrorCount}" Foreground="White" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#9C27B0" CornerRadius="12" Padding="10,4" Margin="4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="Wrench" Width="12" Height="12" Foreground="White" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding MaintenanceCount}" Foreground="White" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <!-- Filter -->
+                    <ComboBox ItemsSource="{Binding StatusFilters}"
+                              SelectedItem="{Binding FilterStatus}"
+                              Width="120" Margin="0,0,12,0"
+                              mah:TextBoxHelper.Watermark="Filter"/>
+
+                    <!-- View controls -->
+                    <ToggleButton IsChecked="{Binding ShowGrid}" ToolTip="Toggle Grid"
+                                  Style="{DynamicResource MahApps.Styles.ToggleButton.Circle}"
+                                  Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="Grid" Width="16" Height="16"/>
+                    </ToggleButton>
+
+                    <ToggleButton IsChecked="{Binding ShowConnections}" ToolTip="Toggle Connections"
+                                  Style="{DynamicResource MahApps.Styles.ToggleButton.Circle}"
+                                  Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="VectorLine" Width="16" Height="16"/>
+                    </ToggleButton>
+
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,4"/>
+
+                    <!-- Zoom controls -->
+                    <Button Command="{Binding ZoomOutCommand}" ToolTip="Zoom Out"
+                            Style="{DynamicResource MahApps.Styles.Button.Circle}"
+                            Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="MagnifyMinus" Width="16" Height="16"/>
+                    </Button>
+
+                    <TextBlock Text="{Binding ZoomLevel, StringFormat={}{0:P0}}"
+                               VerticalAlignment="Center" Width="50" TextAlignment="Center"
+                               Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+
+                    <Button Command="{Binding ZoomInCommand}" ToolTip="Zoom In"
+                            Style="{DynamicResource MahApps.Styles.Button.Circle}"
+                            Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="MagnifyPlus" Width="16" Height="16"/>
+                    </Button>
+
+                    <Button Command="{Binding ResetZoomCommand}" ToolTip="Reset Zoom"
+                            Style="{DynamicResource MahApps.Styles.Button.Circle}"
+                            Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="FitToPage" Width="16" Height="16"/>
+                    </Button>
+
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,4"/>
+
+                    <Button Command="{Binding RefreshCommand}" ToolTip="Refresh"
+                            Style="{DynamicResource MahApps.Styles.Button.Circle}"
+                            Width="36" Height="36" Margin="4,0">
+                        <iconPacks:PackIconMaterial Kind="Refresh" Width="16" Height="16"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main content area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Floor Plan Canvas -->
+            <Border Grid.Column="0" Background="{DynamicResource MahApps.Brushes.Gray9}"
+                    BorderThickness="0" ClipToBounds="True">
+                <floorplan:FloorPlanCanvas x:Name="FloorCanvas"
+                                           ZoomLevel="{Binding ZoomLevel, Mode=TwoWay}"
+                                           GridVisible="{Binding ShowGrid}">
+                    <!-- Zone backgrounds -->
+                    <ItemsControl ItemsSource="{Binding Layout.Zones}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding Color}"
+                                        Opacity="0.3"
+                                        CornerRadius="8"
+                                        Width="{Binding Bounds.Width}"
+                                        Height="{Binding Bounds.Height}">
+                                    <TextBlock Text="{Binding Name}"
+                                               Foreground="White"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Opacity="0.7"
+                                               Margin="12"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding Bounds.X}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Bounds.Y}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+
+                    <!-- Equipment Icons -->
+                    <ItemsControl ItemsSource="{Binding EquipmentItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <floorplan:EquipmentIcon EquipmentId="{Binding EquipmentId}"
+                                                         EquipmentName="{Binding Name}"
+                                                         EquipmentType="{Binding EquipmentType}"
+                                                         Status="{Binding Status}"
+                                                         Temperature="{Binding Temperature}"
+                                                         Vibration="{Binding Vibration}"
+                                                         Pressure="{Binding Pressure}"
+                                                         HealthScore="{Binding HealthScore}"
+                                                         IsSelected="{Binding IsSelected}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                </floorplan:FloorPlanCanvas>
+            </Border>
+
+            <!-- Right Panel - Selected Equipment Details -->
+            <Border Grid.Column="1" Background="{DynamicResource MahApps.Brushes.Gray10}"
+                    BorderBrush="{DynamicResource MahApps.Brushes.Gray8}"
+                    BorderThickness="1,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16">
+                        <TextBlock Text="Equipment Details" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                   Margin="0,0,0,16"/>
+
+                        <!-- No selection message -->
+                        <TextBlock Text="Select equipment on the floor plan to view details"
+                                   Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding SelectedEquipment, Converter={StaticResource BoolToVisConverter}, ConverterParameter=Invert}"/>
+
+                        <!-- Selected equipment info -->
+                        <StackPanel Visibility="{Binding SelectedEquipment, Converter={StaticResource BoolToVisConverter}}">
+                            <!-- Equipment name and code -->
+                            <Border Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                    CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedEquipment.Name}"
+                                               FontSize="18" FontWeight="Bold"
+                                               Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
+                                    <TextBlock Text="{Binding SelectedEquipment.Code}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                               Margin="0,4,0,0"/>
+
+                                    <Border Background="{Binding SelectedEquipment.Status, Converter={StaticResource StatusToColorConverter}}"
+                                            CornerRadius="4" Padding="8,4" Margin="0,12,0,0"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding SelectedMaintenanceStatus}"
+                                                   Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Sensor readings -->
+                            <TextBlock Text="Sensor Readings" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                       Margin="0,0,0,8"/>
+
+                            <Border Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                    CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial Kind="Thermometer" Width="20" Height="20"
+                                                                 Foreground="#F44336" Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="1" Text="Temperature"
+                                               Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding SelectedTemperature, StringFormat={}{0:F1}°C}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                    CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial Kind="Vibrate" Width="20" Height="20"
+                                                                 Foreground="#FF9800" Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="1" Text="Vibration"
+                                               Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding SelectedVibration, StringFormat={}{0:F2} mm/s}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                    CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial Kind="Gauge" Width="20" Height="20"
+                                                                 Foreground="#2196F3" Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="1" Text="Pressure"
+                                               Foreground="{DynamicResource MahApps.Brushes.Gray3}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding SelectedPressure, StringFormat={}{0:F1} PSI}"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Health Score -->
+                            <TextBlock Text="Health Score" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                       Margin="0,16,0,8"/>
+
+                            <Border Background="{DynamicResource MahApps.Brushes.Gray8}"
+                                    CornerRadius="8" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedHealthScore, StringFormat={}{0:F0}%}"
+                                               FontSize="32" FontWeight="Bold"
+                                               Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                               HorizontalAlignment="Center"/>
+                                    <mah:MetroProgressBar Value="{Binding SelectedHealthScore}"
+                                                          Maximum="100"
+                                                          Height="8"
+                                                          Margin="0,12,0,0"
+                                                          Foreground="{DynamicResource MahApps.Brushes.Accent}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Legend -->
+                        <TextBlock Text="Status Legend" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                   Margin="0,24,0,8"/>
+
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#4CAF50" Margin="0,0,8,0"/>
+                                <TextBlock Text="Running" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#2196F3" Margin="0,0,8,0"/>
+                                <TextBlock Text="Idle" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#FF9800" Margin="0,0,8,0"/>
+                                <TextBlock Text="Warning" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#F44336" Margin="0,0,8,0"/>
+                                <TextBlock Text="Error" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#9C27B0" Margin="0,0,8,0"/>
+                                <TextBlock Text="Maintenance" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="12" Height="12" Fill="#757575" Margin="0,0,8,0"/>
+                                <TextBlock Text="Stopped" Foreground="{DynamicResource MahApps.Brushes.Gray3}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Loading overlay -->
+        <Border Grid.RowSpan="2"
+                Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <mah:ProgressRing IsActive="{Binding IsBusy}" Width="50" Height="50"/>
+                <TextBlock Text="Loading floor plan..." Margin="0,16,0,0"
+                           Foreground="White" FontSize="14"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
