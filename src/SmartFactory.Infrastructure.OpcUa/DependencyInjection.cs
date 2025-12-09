@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartFactory.Application.Interfaces;
 using SmartFactory.Infrastructure.OpcUa.Configuration;
 using SmartFactory.Infrastructure.OpcUa.Interfaces;
 using SmartFactory.Infrastructure.OpcUa.Services;
@@ -26,6 +27,9 @@ public static class DependencyInjection
 
         // Register connection manager as singleton
         services.AddSingleton<IOpcUaConnectionManager, OpcUaConnectionManager>();
+
+        // Register OPC-UA data source provider
+        services.AddSingleton<OpcUaDataSourceProvider>();
 
         // Register equipment data collector as hosted service
         services.AddHostedService<EquipmentDataCollectorService>();

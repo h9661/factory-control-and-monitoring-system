@@ -305,11 +305,124 @@
 
                         <!-- Production Lines Tab -->
                         <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Production Lines'}">
-                            <TextBlock Text="Production Lines"
-                                       FontSize="18" FontWeight="SemiBold"
-                                       Margin="0,0,0,16"/>
-                            <TextBlock Text="Production line management coming soon..."
-                                       Foreground="{StaticResource SecondaryTextBrush}"/>
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Production Lines Management"
+                                           FontSize="18" FontWeight="SemiBold"/>
+                                <Button Grid.Column="1"
+                                        Content="Add Production Line"
+                                        Command="{Binding ShowAddProductionLineDialogCommand}"
+                                        Style="{StaticResource IndustrialButtonStyle}"/>
+                            </Grid>
+
+                            <!-- Factory Selector -->
+                            <Border Background="{StaticResource SecondaryBackgroundBrush}"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Select Factory:"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,16,0"/>
+                                    <ComboBox ItemsSource="{Binding Factories}"
+                                              SelectedItem="{Binding SelectedProductionLineFactory}"
+                                              DisplayMemberPath="Name"
+                                              Width="300"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Production Lines DataGrid -->
+                            <DataGrid ItemsSource="{Binding ProductionLines}"
+                                      SelectedItem="{Binding SelectedProductionLine}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      SelectionMode="Single"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      RowBackground="{StaticResource SecondaryBackgroundBrush}"
+                                      AlternatingRowBackground="{StaticResource TertiaryBackgroundBrush}"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                                      MaxHeight="400">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Seq" Binding="{Binding Sequence}" Width="50"/>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="100"/>
+                                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="Capacity" Binding="{Binding CapacityDisplay}" Width="120"/>
+                                    <DataGridTextColumn Header="Equipment" Binding="{Binding EquipmentCount}" Width="80"/>
+
+                                    <DataGridTemplateColumn Header="Status" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding StatusColor}"
+                                                        CornerRadius="4"
+                                                        Padding="8,4"
+                                                        HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding StatusDisplay}"
+                                                               Foreground="White"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="11"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn Header="Actions" Width="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Content="Edit"
+                                                            Command="{Binding DataContext.ShowEditProductionLineDialogCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource IndustrialButtonStyle}"
+                                                            Padding="8,4"
+                                                            Margin="0,0,4,0"/>
+                                                    <Button Content="Delete"
+                                                            Command="{Binding DataContext.DeleteProductionLineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource IndustrialButtonStyle}"
+                                                            Padding="8,4"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Empty State -->
+                            <Border Background="{StaticResource SecondaryBackgroundBrush}"
+                                    CornerRadius="8"
+                                    Padding="32"
+                                    Margin="0,16,0,0"
+                                    HorizontalAlignment="Center">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ProductionLines.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <iconPacks:PackIconMaterial Kind="Factory"
+                                                                 Width="48" Height="48"
+                                                                 Foreground="{StaticResource SecondaryTextBrush}"
+                                                                 HorizontalAlignment="Center"
+                                                                 Margin="0,0,0,16"/>
+                                    <TextBlock Text="No Production Lines"
+                                               FontSize="16" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,8"/>
+                                    <TextBlock Text="Select a factory and add production lines to get started."
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
                         <!-- Application Tab -->
@@ -518,6 +631,87 @@
                                     Margin="0,0,8,0"/>
                             <Button Content="Save"
                                     Command="{Binding SaveFactoryCommand}"
+                                    Style="{StaticResource IndustrialButtonStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Border>
+
+        <!-- Production Line Dialog -->
+        <Border Grid.RowSpan="2"
+                Background="#80000000"
+                Visibility="{Binding IsProductionLineDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="{StaticResource PrimaryBackgroundBrush}"
+                    CornerRadius="8"
+                    Padding="24"
+                    Width="500"
+                    MaxHeight="550"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Add Production Line"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsProductionLineEditMode}" Value="True">
+                                            <Setter Property="Text" Value="Edit Production Line"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="Code:" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding ProductionLineCode}"
+                                         IsEnabled="{Binding IsProductionLineEditMode, Converter={StaticResource InverseBoolConverter}}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Name:" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding ProductionLineName}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="Sequence:" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding ProductionLineSequence}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Designed Capacity (units/hr):" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding ProductionLineDesignedCapacity}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Description:" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding ProductionLineDescription}"
+                                 Height="80"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Margin="0,0,0,16"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Cancel"
+                                    Command="{Binding CloseProductionLineDialogCommand}"
+                                    Style="{StaticResource IndustrialButtonStyle}"
+                                    Margin="0,0,8,0"/>
+                            <Button Content="Save"
+                                    Command="{Binding SaveProductionLineCommand}"
                                     Style="{StaticResource IndustrialButtonStyle}"/>
                         </StackPanel>
                     </StackPanel>
