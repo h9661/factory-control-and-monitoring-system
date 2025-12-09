@@ -6,6 +6,10 @@ using SmartFactory.Application.BackgroundServices;
 using SmartFactory.Application.Events;
 using SmartFactory.Application.Interfaces;
 using SmartFactory.Application.Services;
+using SmartFactory.Application.Services.Analytics;
+using SmartFactory.Application.Services.Maintenance;
+using SmartFactory.Application.Services.DataSource;
+using SmartFactory.Application.Services.Simulation;
 
 namespace SmartFactory.Application;
 
@@ -40,16 +44,54 @@ public static class DependencyInjection
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IFactoryService, FactoryService>();
 
+        // Analytics Services
+        services.AddScoped<IOeeCalculationService, OeeCalculationService>();
+
+        // Predictive Maintenance Services
+        services.AddScoped<IPredictiveMaintenanceService, PredictiveMaintenanceService>();
+
         // Configure polling options
         if (configuration != null)
         {
             services.Configure<PollingOptions>(options =>
                 configuration.GetSection(PollingOptions.SectionName).Bind(options));
+
+            // Configure simulation profile
+            services.Configure<SimulationProfile>(options =>
+                configuration.GetSection("SimulationProfile").Bind(options));
+
+            // Configure data source options
+            services.Configure<DataSourceOptions>(options =>
+                configuration.GetSection(DataSourceOptions.SectionName).Bind(options));
         }
         else
         {
             services.Configure<PollingOptions>(options => { });
+            services.Configure<SimulationProfile>(options => { });
+            services.Configure<DataSourceOptions>(options => { });
         }
+
+        // Simulation Services
+        services.AddSingleton<IDataSimulatorService, FactoryDataSimulatorService>();
+
+        // Data Source Providers
+        services.AddSingleton<SimulatorDataSourceProvider>();
+        services.AddSingleton<HybridDataSourceProvider>();
+
+        // Register the appropriate IDataSourceProvider based on configuration
+        services.AddSingleton<IDataSourceProvider>(sp =>
+        {
+            var options = configuration?.GetSection(DataSourceOptions.SectionName).Get<DataSourceOptions>()
+                ?? new DataSourceOptions();
+
+            return options.Mode switch
+            {
+                DataSourceMode.Simulation => sp.GetRequiredService<SimulatorDataSourceProvider>(),
+                DataSourceMode.Hybrid => sp.GetRequiredService<HybridDataSourceProvider>(),
+                // TODO: Add OpcUaDataSourceProvider when implemented
+                _ => sp.GetRequiredService<SimulatorDataSourceProvider>()
+            };
+        });
 
         // Background Services
         services.AddHostedService<EquipmentPollingService>();

@@ -16,7 +16,8 @@
       "Bash(dotnet clean:*)",
       "Bash(xargs -I {} bash -c 'echo \"\"\"\"=== {} ===\"\"\"\" && grep -E \"\"\"\"^namespace|^public partial class\"\"\"\" {} 2>/dev/null || true')",
       "Bash(tree:*)",
-      "Bash(dotnet ef migrations add:*)"
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

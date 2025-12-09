@@ -1,0 +1,420 @@
+<UserControl x:Class="SmartFactory.Presentation.Views.Analytics.OeeAnalyticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:vm="clr-namespace:SmartFactory.Presentation.ViewModels.Analytics"
+             mc:Ignorable="d"
+             d:DesignHeight="900" d:DesignWidth="1400"
+             Background="{StaticResource TertiaryBackgroundBrush}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <iconPacks:PackIconMaterial Kind="ChartArc" Width="28" Height="28"
+                                            Foreground="{StaticResource AccentBrush}"
+                                            VerticalAlignment="Center"/>
+                <TextBlock Text="OEE Analytics" FontSize="24" FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryTextBrush}"
+                           Margin="12,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Overall Equipment Effectiveness" FontSize="14"
+                           Foreground="{StaticResource SecondaryTextBrush}"
+                           Margin="16,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Command="{Binding RefreshCommand}"
+                    Style="{StaticResource IndustrialButtonStyle}"
+                    ToolTip="Refresh Data">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconMaterial Kind="Refresh" Width="16" Height="16"/>
+                    <TextBlock Text="Refresh" Margin="8,0,0,0"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Date Filter Bar -->
+        <Border Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}"
+                CornerRadius="8" Padding="16" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Quick Date Filters -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="Quick Select:" Foreground="{StaticResource SecondaryTextBrush}"
+                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <Button Content="Today" Command="{Binding SetDateRangeCommand}" CommandParameter="today"
+                            Style="{StaticResource IndustrialButtonStyle}" Margin="0,0,8,0" Padding="12,6"/>
+                    <Button Content="Week" Command="{Binding SetDateRangeCommand}" CommandParameter="week"
+                            Style="{StaticResource IndustrialButtonStyle}" Margin="0,0,8,0" Padding="12,6"/>
+                    <Button Content="Month" Command="{Binding SetDateRangeCommand}" CommandParameter="month"
+                            Style="{StaticResource IndustrialButtonStyle}" Margin="0,0,8,0" Padding="12,6"/>
+                    <Button Content="Quarter" Command="{Binding SetDateRangeCommand}" CommandParameter="quarter"
+                            Style="{StaticResource IndustrialButtonStyle}" Padding="12,6"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Width="1" Background="{StaticResource BorderBrush}" Margin="24,0"/>
+
+                <!-- Custom Date Range -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="From:" Foreground="{StaticResource SecondaryTextBrush}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <DatePicker SelectedDate="{Binding StartDate}" Width="130"
+                                Background="{StaticResource PrimaryBackgroundBrush}"/>
+                    <TextBlock Text="To:" Foreground="{StaticResource SecondaryTextBrush}"
+                               VerticalAlignment="Center" Margin="16,0,8,0"/>
+                    <DatePicker SelectedDate="{Binding EndDate}" Width="130"
+                                Background="{StaticResource PrimaryBackgroundBrush}"/>
+                    <Button Content="Apply" Command="{Binding ApplyDateFilterCommand}"
+                            Style="{StaticResource IndustrialButtonStyle}" Margin="16,0,0,0" Padding="16,6"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- OEE Gauges Row -->
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Overall OEE Gauge -->
+                    <Border Grid.Column="0" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="0,0,8,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Overall OEE" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"/>
+
+                            <Grid Grid.Row="1">
+                                <lvc:PieChart Series="{Binding OeeGaugeSeries}"
+                                              InitialRotation="-90"
+                                              MaxAngle="360"
+                                              AnimationsSpeed="00:00:00.500"/>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentOee.OverallOee, StringFormat='{}{0:F1}%'}"
+                                               FontSize="32" FontWeight="Bold"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding OeeClassificationText}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <iconPacks:PackIconMaterial Kind="Factory" Width="14" Height="14"
+                                                            Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <TextBlock Text="{Binding CurrentOee.TotalProduced, StringFormat='{}  {0:N0} units'}"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           FontSize="12" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Availability Gauge -->
+                    <Border Grid.Column="1" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="4,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Availability" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"/>
+
+                            <Grid Grid.Row="1">
+                                <lvc:PieChart Series="{Binding AvailabilityGaugeSeries}"
+                                              InitialRotation="-90"
+                                              MaxAngle="360"
+                                              AnimationsSpeed="00:00:00.500"/>
+                                <TextBlock Text="{Binding CurrentOee.Availability, StringFormat='{}{0:F1}%'}"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="{StaticResource SuccessBrush}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+
+                            <TextBlock Grid.Row="2"
+                                       Text="{Binding CurrentOee.ActualRunTimeMinutes, StringFormat='{}Run Time: {0:F0} min'}"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       FontSize="12" HorizontalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Performance Gauge -->
+                    <Border Grid.Column="2" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="4,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Performance" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"/>
+
+                            <Grid Grid.Row="1">
+                                <lvc:PieChart Series="{Binding PerformanceGaugeSeries}"
+                                              InitialRotation="-90"
+                                              MaxAngle="360"
+                                              AnimationsSpeed="00:00:00.500"/>
+                                <TextBlock Text="{Binding CurrentOee.Performance, StringFormat='{}{0:F1}%'}"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="{StaticResource InfoBrush}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+
+                            <TextBlock Grid.Row="2"
+                                       Text="{Binding CurrentOee.IdealCycleTimeSeconds, StringFormat='{}Cycle Time: {0:F1}s'}"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       FontSize="12" HorizontalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Quality Gauge -->
+                    <Border Grid.Column="3" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="8,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="180"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Quality" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"/>
+
+                            <Grid Grid.Row="1">
+                                <lvc:PieChart Series="{Binding QualityGaugeSeries}"
+                                              InitialRotation="-90"
+                                              MaxAngle="360"
+                                              AnimationsSpeed="00:00:00.500"/>
+                                <TextBlock Text="{Binding CurrentOee.Quality, StringFormat='{}{0:F1}%'}"
+                                           FontSize="28" FontWeight="Bold"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentOee.GoodUnits, StringFormat='{}Good: {0:N0}'}"
+                                           Foreground="{StaticResource SuccessBrush}" FontSize="12"/>
+                                <TextBlock Text=" | " Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <TextBlock Text="{Binding CurrentOee.DefectUnits, StringFormat='{}Defects: {0:N0}'}"
+                                           Foreground="{StaticResource ErrorBrush}" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- OEE Trend Chart -->
+                <Border Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="300"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="OEE Trend" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,8"/>
+
+                        <lvc:CartesianChart Grid.Row="1"
+                                            Series="{Binding OeeTrendSeries}"
+                                            XAxes="{Binding TrendXAxes}"
+                                            YAxes="{Binding TrendYAxes}"
+                                            AnimationsSpeed="00:00:00.500"
+                                            TooltipPosition="Top"
+                                            ZoomMode="X"/>
+                    </Grid>
+                </Border>
+
+                <!-- Loss Breakdown and Comparison Row -->
+                <Grid Grid.Row="2" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Loss Breakdown -->
+                    <Border Grid.Column="0" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="0,0,8,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="250"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Loss Breakdown" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,8"/>
+
+                            <lvc:CartesianChart Grid.Row="1"
+                                                Series="{Binding LossBreakdownSeries}"
+                                                XAxes="{Binding LossXAxes}"
+                                                YAxes="{Binding LossYAxes}"
+                                                AnimationsSpeed="00:00:00.500"/>
+
+                            <!-- Legend -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource SuccessBrush}" RadiusX="2" RadiusY="2"/>
+                                    <TextBlock Text="Effective" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource ErrorBrush}" RadiusX="2" RadiusY="2"/>
+                                    <TextBlock Text="Availability" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                                    <Rectangle Width="12" Height="12" Fill="{StaticResource WarningBrush}" RadiusX="2" RadiusY="2"/>
+                                    <TextBlock Text="Performance" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle Width="12" Height="12" Fill="#9C27B0" RadiusX="2" RadiusY="2"/>
+                                    <TextBlock Text="Quality" Foreground="{StaticResource SecondaryTextBrush}" Margin="4,0,0,0" FontSize="11"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Period Comparison -->
+                    <Border Grid.Column="1" Background="{StaticResource SecondaryBackgroundBrush}"
+                            CornerRadius="8" Padding="16" Margin="8,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="280"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <TextBlock Text="Period Comparison" FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"/>
+                                <ComboBox HorizontalAlignment="Right" Width="120"
+                                          SelectedItem="{Binding SelectedComparisonType}"
+                                          Background="{StaticResource PrimaryBackgroundBrush}">
+                                    <ComboBoxItem Content="By Shift"/>
+                                    <ComboBoxItem Content="By Day"/>
+                                    <ComboBoxItem Content="By Week"/>
+                                    <ComboBoxItem Content="By Month"/>
+                                </ComboBox>
+                            </Grid>
+
+                            <lvc:CartesianChart Grid.Row="1"
+                                                Series="{Binding ComparisonSeries}"
+                                                XAxes="{Binding ComparisonXAxes}"
+                                                YAxes="{Binding ComparisonYAxes}"
+                                                AnimationsSpeed="00:00:00.500"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Equipment OEE Table -->
+                <Border Grid.Row="3" Background="{StaticResource SecondaryBackgroundBrush}"
+                        CornerRadius="8" Padding="16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto" MaxHeight="300"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Equipment OEE Ranking" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding EquipmentOeeList}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  RowBackground="{StaticResource PrimaryBackgroundBrush}"
+                                  AlternatingRowBackground="{StaticResource SecondaryBackgroundBrush}"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                                  HeadersVisibility="Column"
+                                  CanUserResizeRows="False"
+                                  CanUserSortColumns="True">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="{StaticResource TertiaryBackgroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
+                                    <Setter Property="Padding" Value="12,8"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
+                                    <Setter Property="Padding" Value="12,8"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Equipment" Binding="{Binding EquipmentName}" Width="*"/>
+                                <DataGridTextColumn Header="OEE %" Binding="{Binding OverallOee, StringFormat='{}{0:F1}%'}" Width="100"/>
+                                <DataGridTextColumn Header="Availability %" Binding="{Binding Availability, StringFormat='{}{0:F1}%'}" Width="120"/>
+                                <DataGridTextColumn Header="Performance %" Binding="{Binding Performance, StringFormat='{}{0:F1}%'}" Width="120"/>
+                                <DataGridTextColumn Header="Quality %" Binding="{Binding Quality, StringFormat='{}{0:F1}%'}" Width="100"/>
+                                <DataGridTextColumn Header="Good Units" Binding="{Binding GoodUnits, StringFormat='{}{0:N0}'}" Width="100"/>
+                                <DataGridTextColumn Header="Defects" Binding="{Binding DefectUnits, StringFormat='{}{0:N0}'}" Width="80"/>
+                                <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="3" Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <mah:ProgressRing IsActive="{Binding IsBusy}" Width="50" Height="50"/>
+                <TextBlock Text="Loading OEE Data..." Foreground="White" Margin="0,16,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
